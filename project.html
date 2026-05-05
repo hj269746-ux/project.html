@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AI Hospital System</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI';}
+
+body{
+    background:url('https://images.unsplash.com/photo-1586773860418-d37222d8fce3') no-repeat center/cover;
+    height:100vh;
+}
+.overlay{background:rgba(0,40,80,0.7);height:100%;}
+
+/* Pages */
+.page{display:none;color:white;}
+.active{display:block;}
+
+.header{
+    text-align:center;
+    padding:15px;
+    background:rgba(0,0,0,0.6);
+}
+
+/* LOGIN */
+#loginPage{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100%;
+}
+.login-card{
+    width:350px;
+    padding:25px;
+    border-radius:20px;
+    background:rgba(255,255,255,0.15);
+}
+
+/* Inputs */
+input,textarea{
+    width:100%;
+    margin-top:10px;
+    padding:10px;
+    border-radius:8px;
+    border:none;
+}
+
+/* Button */
+button{
+    width:100%;
+    margin-top:10px;
+    padding:12px;
+    border-radius:30px;
+    border:none;
+    background:linear-gradient(45deg,#00c6ff,#0072ff);
+    color:white;
+    cursor:pointer;
+}
+
+/* Layout FIXED */
+.container{
+    display:grid;
+    grid-template-columns:45% 55%;
+    height:calc(100vh - 70px);
+    padding:15px;
+    gap:15px;
+}
+
+/* Cards */
+.card{
+    background:rgba(255,255,255,0.15);
+    padding:15px;
+    border-radius:15px;
+}
+
+/* Chat */
+.chat-box{
+    height:120px;
+    overflow-y:auto;
+    background:rgba(255,255,255,0.2);
+    padding:10px;
+}
+.msg{padding:8px;margin:5px;border-radius:10px;}
+.user{background:#00ffcc;color:black;margin-left:auto;}
+.doctor{background:#ff4b2b;}
+
+/* Video */
+video{
+    width:100%;
+    height:320px;
+    border-radius:10px;
+}
+
+/* Emergency */
+.emergency{
+    text-align:center;
+    padding:40px;
+}
+.emergency div{
+    margin:15px;
+    padding:15px;
+    background:rgba(255,255,255,0.2);
+    border-radius:10px;
+}
+</style>
+</head>
+
+<body>
+<div class="overlay">
+
+<!-- LOGIN PAGE -->
+<div id="page1" class="page active">
+<div id="loginPage">
+<div class="login-card">
+<h2>🏥 Patient Login</h2>
+<input id="name" placeholder="👤 Name">
+<button onclick="login()">Login</button>
+</div>
+</div>
+</div>
+
+<!-- MAIN PAGE -->
+<div id="page2" class="page">
+
+<div class="header">🤖 AI Doctor + Video</div>
+
+<div class="container">
+
+<!-- LEFT -->
+<div>
+
+<div class="card">
+<h3>🩺 Select Problem</h3>
+
+<label><input type="radio" name="issue" value="fever"> Fever</label><br>
+<label><input type="radio" name="issue" value="cold"> Cold</label><br>
+<label><input type="radio" name="issue" value="stomach"> Stomach Pain</label><br>
+<label><input type="radio" name="issue" value="headache"> Headache</label><br>
+<label><input type="radio" name="issue" value="legs"> Legs Pain</label><br>
+<label><input type="radio" name="issue" value="hands"> Hands Pain</label><br>
+<label><input type="radio" name="issue" value="vomit"> Vomiting</label><br>
+
+<textarea id="problem" placeholder="Describe..."></textarea>
+<button onclick="sendProblem()">Submit</button>
+</div>
+
+<div class="card">
+<h3>💬 AI Doctor Chat</h3>
+<div class="chat-box" id="chatBox"></div>
+<input id="chatInput">
+<button onclick="sendMessage()">Send</button>
+</div>
+
+<button onclick="goEmergency()">Next ➡️ Emergency</button>
+
+</div>
+
+<!-- RIGHT VIDEO -->
+<div class="card">
+<h3>🎥 Camera</h3>
+<button onclick="startCamera()">Start Camera</button>
+<video id="video" autoplay></video>
+</div>
+
+</div>
+</div>
+
+<!-- EMERGENCY PAGE -->
+<div id="page3" class="page">
+<div class="header">🚨 Emergency Services</div>
+
+<div class="emergency">
+<div>📞 Ambulance: 102</div>
+<div>🚓 Police: 100</div>
+<div>👨‍👩‍👧 Parents Contact: +91-XXXXXXXXXX</div>
+
+<button onclick="back()">⬅️ Back</button>
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+/* LOGIN */
+function login(){
+localStorage.setItem("user",document.getElementById("name").value);
+showPage(2);
+}
+window.onload=function(){
+if(localStorage.getItem("user")) showPage(2);
+};
+
+/* PAGE SWITCH */
+function showPage(n){
+document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+document.getElementById("page"+n).classList.add("active");
+}
+function goEmergency(){showPage(3);}
+function back(){showPage(2);}
+
+/* ISSUE */
+function getIssue(){
+let r=document.getElementsByName("issue");
+for(let i of r){if(i.checked)return i.value;}
+return "";
+}
+
+/* SMART AI RESPONSE */
+function getResponse(issue){
+switch(issue){
+case "fever": return "💊 Paracetamol\n📌 2 times/day\nDrink water";
+case "cold": return "💊 Cetirizine\n📌 Night use\nSteam inhalation";
+case "stomach": return "💊 Pantoprazole\n📌 Before breakfast";
+case "headache": return "💊 Ibuprofen\n📌 Rest in dark room";
+case "legs": return "💊 Pain relief gel\n📌 Massage twice";
+case "hands": return "💊 Diclofenac\n📌 Apply gel";
+case "vomit": return "💊 ORS + Domperidone\n📌 Stay hydrated";
+default: return "💊 Multivitamin\nMonitor symptoms";
+}
+}
+
+/* SEND */
+function sendProblem(){
+let issue=getIssue();
+let chat=document.getElementById("chatBox");
+
+chat.innerHTML+=`<div class="msg user">${issue}</div>`;
+
+setTimeout(()=>{
+chat.innerHTML+=`<div class="msg doctor">${getResponse(issue)}</div>`;
+chat.scrollTop=chat.scrollHeight;
+},800);
+}
+
+/* CHAT */
+function sendMessage(){
+let text=document.getElementById("chatInput").value;
+let chat=document.getElementById("chatBox");
+
+chat.innerHTML+=`<div class="msg user">${text}</div>`;
+
+setTimeout(()=>{
+chat.innerHTML+=`<div class="msg doctor">Doctor: Follow above treatment</div>`;
+chat.scrollTop=chat.scrollHeight;
+},500);
+}
+
+/* CAMERA */
+async function startCamera(){
+let stream=await navigator.mediaDevices.getUserMedia({video:true});
+document.getElementById("video").srcObject=stream;
+}
+
+</script>
+
+</body>
+</html>
